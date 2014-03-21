@@ -24,11 +24,10 @@ for it_frm = frames
 
 
   if it_frm > 1
-    disp(num2str(it_frm))
     % create samples
     randMatrix = randn(nSamples, 4);
     samples = repmat(r0, [nSamples, 1]);
-    samples =  samples + randMatrix .* repmat(sigma, [nSamples, 1]);
+    samples =  samples + randMatrix .* repmat(sigma, [nSamples, 1]);% generate samples using Gaussian
 
     % compute likelihood
     sim = zeros(nSamples, 1);
@@ -40,7 +39,7 @@ for it_frm = frames
       hu = round(r(2) - r(4)/2);
       hd = round(r(2) + r(4)/2);
       h{it_sample} = hsv_hist(im(hu:hd,wl:wr,:));
-      sim(it_sample) = cv.compareHist(h{it_sample}, tempH, 'Method', 'Intersect');
+      sim(it_sample) = cv.compareHist(h{it_sample}, tempH, 'Method', 'Intersect');% caculate observations
     end
 
     [~, idx] = min(sim);
@@ -57,14 +56,14 @@ for it_frm = frames
     wr = round(r(1) + r(3)/2);
     hu = round(r(2) - r(4)/2);
     hd = round(r(2) + r(4)/2);
-    tmp = [wl,wr,hu,hd];
-    disp(tmp);
-    tempH = hsv_hist(im(hu:hd,wl:wr,:));
+    tempH = hsv_hist(im(hu:hd,wl:wr,:)); % caculate the hsv_hist of the rectangle
   end
   
   clf;
   imshow(im);
   hold on;
-  rectangle('Position', [wl hu r(3) r(4)], 'LineWidth',2,'LineStyle','--','EdgeColor','red');
-  pause(1);
+  tmp = [wl hu r(3) r(4)];
+  disp(tmp);
+  rectangle('Position', [wl hu r(3) r(4)], 'LineWidth',2,'LineStyle','--','EdgeColor','red');% the newly estimated position
+  pause(1);% pause so that I can view the effect
 end

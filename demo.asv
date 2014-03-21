@@ -6,10 +6,8 @@ addpath('mexopencv');
 title = 'bolt'; % test video
 root = '';
 framePath = fullfile(root, title, 'frames\');
-%disp(framePath);
 files = dir([framePath '*.jpg']);
 frames = 1 : numel(files);
-%disp(num2str(numel(files)));
 nSamples = 300;
 
 % initialization
@@ -17,9 +15,6 @@ r0 = [349, 195, 25, 60]; % centerx, centery, width, height
 s0 = 1;
 
 sigma = [0.3, 0.3, 0.1, 0.1];
-
-
-
 
 for it_frm = frames
   disp([ '-> Frame', num2str(it_frm), '/', num2str(numel(frames))]);
@@ -29,23 +24,22 @@ for it_frm = frames
 
 
   if it_frm > 1
-    disp(num2str(it_frm))
     % create samples
     randMatrix = randn(nSamples, 4);
     samples = repmat(r0, [nSamples, 1]);
-    samples =  samples + randMatrix .* repmat(sigma, [nSamples, 1]);
+    samples =  samples + randMatrix .* repmat(sigma, [nSamples, 1]);% generate samples using Gaussian
 
     % compute likelihood
     sim = zeros(nSamples, 1);
     h = cell(nSamples, 1);
     for it_sample = 1 : nSamples
-      r = samples(it_sample);
+      r = samples(it_sample,:);
       wl = round(r(1) - r(3)/2);
       wr = round(r(1) + r(3)/2);
       hu = round(r(2) - r(4)/2);
       hd = round(r(2) + r(4)/2);
       h{it_sample} = hsv_hist(im(hu:hd,wl:wr,:));
-      sim(it_sample) = cv.compareHist(h{it_sample}, tempH, 'Method', 'Intersect');
+      sim(it_sample) = cv.compareHist(h{it_sample}, tempH, 'Method', 'Intersect');% caculate observations
     end
 
     [~, idx] = min(sim);
@@ -55,7 +49,6 @@ for it_frm = frames
     wr = round(r(1) + r(3)/2);
     hu = round(r(2) - r(4)/2);
     hd = round(r(2) + r(4)/2);
-    %tempH = h{idx};
   else % == 1
     % select rectangle
     r = r0;
@@ -63,22 +56,14 @@ for it_frm = frames
     wr = round(r(1) + r(3)/2);
     hu = round(r(2) - r(4)/2);
     hd = round(r(2) + r(4)/2);
-    tmp = [wl,wr,hu,hd];
-    disp(tmp);
-    tempH = hsv_hist(im(hu:hd,wl:wr,:));
+    tempH = hsv_hist(im(hu:hd,wl:wr,:)); % caculate the hsv_hist of the rectangle
   end
   
   clf;
   imshow(im);
   hold on;
-  rectangle('Position', [wl hu r(3) r(4)], 'LineWidth',2,'LineStyle','--','EdgeColor','red');
-
-% %   r = [r0(1)-r0(3)/2, r0(2)-r0(4)/2, r0(3), r0(4)]; %   r = floor(r +
-% .5); % %   im(r(2), r(1) : r(1) + r(3), :) = repmat([255, 0, 0], [r(3)+1,
-% 1]); %   im(r(2) + r(4), r(1) : r(1) + r(3), :) = repmat([255, 0, 0],
-% [r(3)+1, 1]); % %   im(r(2) : r(2) + r(4), r(1), :) = repmat([255, 0, 0],
-% [r(4)+1, 1]); %   im(r(2) : r(2) + r(4), r(1) + r(3), :) = repmat([255,
-% 0, 0], [r(4)+1, 1]); % %   savePath = fullfile(root, title, 'pf\'); %
-% saveName = fullfile(savePath, files(it_frm).name); %   imwrite(im,
-% saveName, 'jpg');
+  tmp = [wl hu r(3) r(4)];
+  disp()
+  rectangle('Position', [wl hu r(3) r(4)], 'LineWidth',2,'LineStyle','--','EdgeColor','red');% the newly estimated position
+  pause(1);% pause so that I can view the effect
 end
