@@ -62,8 +62,6 @@ for it_frm = frames
   clf;
   imshow(im);
   hold on;
-  tmp = [wl hu r(3) r(4)];
-  disp(tmp);
   rectangle('Position', [wl hu r(3) r(4)], 'LineWidth',2,'LineStyle','--','EdgeColor','red');% the newly estimated position
   pause(1);% pause so that I can view the effect
 end
